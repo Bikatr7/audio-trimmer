@@ -1,12 +1,12 @@
 ## built-in libraries
 import os
+import sys
 
 ## third-party libraries
 import moviepy.editor as mp
 from pydub import AudioSegment
 
 def trim_video_based_on_volume(video_path, output_path, silence_threshold=-50.0, chunk_size=100):
-
     video = mp.VideoFileClip(video_path)
     
     ## Extract audio from the video
@@ -43,9 +43,19 @@ def trim_video_based_on_volume(video_path, output_path, silence_threshold=-50.0,
     ## Clean up temporary audio file
     os.remove(audio_path)
 
-def process_directory(directory, silence_threshold=-50.0, chunk_size=100):
+def process_directory(directory, append_str="-t", silence_threshold=-50.0, chunk_size=100):
     for filename in os.listdir(directory):
         if(filename.endswith(".mp4")):
             video_path = os.path.join(directory, filename)
-            output_path = os.path.join(directory, f"{os.path.splitext(filename)[0]}-t.mp4")
+            output_path = os.path.join(directory, f"{os.path.splitext(filename)[0]}{append_str}.mp4")
             trim_video_based_on_volume(video_path, output_path, silence_threshold, chunk_size)
+
+if(__name__ == "__main__"):
+    if(len(sys.argv) < 2):
+        print("Usage: python script.py <directory> [<append_str>]")
+        sys.exit(1)
+    
+    directory = sys.argv[1]
+    append_str = sys.argv[2] if len(sys.argv) > 2 else "-t"
+    
+    process_directory(directory, append_str)
