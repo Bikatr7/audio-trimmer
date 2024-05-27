@@ -1,3 +1,6 @@
+## built-in libraries
+import os
+
 ## third-party libraries
 import moviepy.editor as mp
 from pydub import AudioSegment
@@ -9,9 +12,8 @@ def trim_video_based_on_volume(video_path, output_path, silence_threshold=-50.0,
     ## Extract audio from the video
     audio = video.audio
     audio_path = "temp_audio.wav"
-    audio.write_audiofile(audio_path, codec='pcm_s16le')
+    audio.write_audiofile(audio_path, codec='pcm_s16le') # type: ignore
     
-    ## Load audio using pydub
     audio_segment = AudioSegment.from_file(audio_path)
     
     ## Calculate the duration of the audio in milliseconds
@@ -26,7 +28,7 @@ def trim_video_based_on_volume(video_path, output_path, silence_threshold=-50.0,
         else:
             silence_duration = 0
         
-        # If silence duration exceeds a threshold, break the loop
+        ## If silence duration exceeds a threshold, break the loop
         if(silence_duration >= chunk_size * 15):  # 1.5 seconds of silence
             break
 
@@ -39,5 +41,11 @@ def trim_video_based_on_volume(video_path, output_path, silence_threshold=-50.0,
     trimmed_video.write_videofile(output_path, codec='libx264')
     
     ## Clean up temporary audio file
-    import os
     os.remove(audio_path)
+
+def process_directory(directory, silence_threshold=-50.0, chunk_size=100):
+    for filename in os.listdir(directory):
+        if(filename.endswith(".mp4")):
+            video_path = os.path.join(directory, filename)
+            output_path = os.path.join(directory, f"{os.path.splitext(filename)[0]}-t.mp4")
+            trim_video_based_on_volume(video_path, output_path, silence_threshold, chunk_size)
