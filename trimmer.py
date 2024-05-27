@@ -44,10 +44,14 @@ def trim_video_based_on_volume(video_path, output_path, silence_threshold=-50.0,
     os.remove(audio_path)
 
 def process_directory(directory, append_str="-t", silence_threshold=-50.0, chunk_size=100):
+    output_dir = os.path.join(directory, "trimmed_videos")
+    if(not os.path.exists(output_dir)):
+        os.makedirs(output_dir)
+    
     for filename in os.listdir(directory):
         if(filename.endswith(".mp4")):
             video_path = os.path.join(directory, filename)
-            output_path = os.path.join(directory, f"{os.path.splitext(filename)[0]}{append_str}.mp4")
+            output_path = os.path.join(output_dir, f"{os.path.splitext(filename)[0]}{append_str}.mp4")
             trim_video_based_on_volume(video_path, output_path, silence_threshold, chunk_size)
 
 if(__name__ == "__main__"):
@@ -56,6 +60,6 @@ if(__name__ == "__main__"):
         sys.exit(1)
     
     directory = sys.argv[1]
-    append_str = sys.argv[2] if len(sys.argv) > 2 else "-t"
+    append_str = sys.argv[2] if len(sys.argv) > 2 else ""
     
     process_directory(directory, append_str)
