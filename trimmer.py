@@ -9,6 +9,11 @@ from pydub import AudioSegment
 def trim_video_based_on_volume(video_path, output_path, silence_threshold=-50.0, chunk_size=100):
     video = mp.VideoFileClip(video_path)
     
+    if video.audio is None:
+        print(f"Warning: The video '{video_path}' does not have an audio track. Skipping trimming, likely a bad video.")
+        video.write_videofile(output_path, codec='libx264')
+        return
+    
     ## Extract audio from the video
     audio = video.audio
     audio_path = "temp_audio.wav"
